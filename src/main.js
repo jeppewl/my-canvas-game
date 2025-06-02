@@ -1,4 +1,5 @@
-import { GameLoop } from "./GameLopp.js";
+import { GameLoop } from "./GameLoop.js";
+import { DOWN, Input, LEFT, RIGHT, UP } from "./Input.js";
 import { resources } from "./Resource.js";
 import { Sprite } from "./Sprite.js";
 import "./style.css";
@@ -31,13 +32,26 @@ const shadowSprite = new Sprite({
 });
 
 const heroPos = new Vector2(16 * 5, 16 * 5);
+const input = new Input();
 
 const update = () => {
-  // temp
-  heroSprite.frame += 1;
-  heroPos.x += 1;
+  if (input.direction === DOWN) {
+    heroPos.y += 1;
+    heroSprite.frame = 0;
+  }
+  if (input.direction === UP) {
+    heroPos.y -= 1;
+    heroSprite.frame = 6;
+  }
+  if (input.direction === LEFT) {
+    heroPos.x -= 1;
+    heroSprite.frame = 9;
+  }
+  if (input.direction === RIGHT) {
+    heroPos.x += 1;
+    heroSprite.frame = 3;
+  }
 };
-
 const draw = () => {
   skySprite.drawImage(ctx, 0, 0);
   groundSprite.drawImage(ctx, 0, 0);
