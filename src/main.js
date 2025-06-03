@@ -1,4 +1,6 @@
 import { GameLoop } from "./GameLoop.js";
+import { gridCells } from "./helpers/grid.js";
+import { moveTowards } from "./helpers/moveTowards.js";
 import { DOWN, Input, LEFT, RIGHT, UP } from "./Input.js";
 import { resources } from "./Resource.js";
 import { Sprite } from "./Sprite.js";
@@ -24,47 +26,68 @@ const heroSprite = new Sprite({
   hFrames: 3,
   vFrames: 8,
   frame: 1,
+  position: new Vector2(gridCells(6), gridCells(5)),
 });
+
+const heroDestinationPosition = heroSprite.position.duplicate();
 
 const shadowSprite = new Sprite({
   resource: resources.images.shadow,
   frameSize: new Vector2(32, 32),
 });
 
-const heroPos = new Vector2(16 * 5, 16 * 5);
 const input = new Input();
 
 const update = () => {
+  const distance = moveTowards(heroSprite, heroDestinationPosition, 1);
+  const hasArrived = distance <= 1;
+  if (hasArrived) {
+    tryMove();
+  }
+  return;
+};
+
+const tryMove = () => {
+  if (!input.direction) {
+    return;
+  }
+
+  let nextX = heroDestinationPosition.x;
+  let nextY = heroDestinationPosition.y;
+  const gridSize = 16;
+
   if (input.direction === DOWN) {
-    heroPos.y += 1;
+    nextY += gridSize;
     heroSprite.frame = 0;
   }
   if (input.direction === UP) {
-    heroPos.y -= 1;
+    nextY -= gridSize;
     heroSprite.frame = 6;
   }
   if (input.direction === LEFT) {
-    heroPos.x -= 1;
+    nextX -= gridSize;
     heroSprite.frame = 9;
   }
   if (input.direction === RIGHT) {
-    heroPos.x += 1;
+    nextX += gridSize;
     heroSprite.frame = 3;
   }
+
+  heroDestinationPosition.x = nextX;
+  heroDestinationPosition.y = nextY;
 };
+
 const draw = () => {
   skySprite.drawImage(ctx, 0, 0);
   groundSprite.drawImage(ctx, 0, 0);
 
   // Center the Hero in the cell
   const hero0ffset = new Vector2(+8, -21);
-  const heroPosX = heroPos.x + hero0ffset.x;
-  const heroPosY = heroPos.y + 1 + hero0ffset.y;
+  const heroPosX = heroSprite.position.x + hero0ffset.x;
+  const heroPosY = heroSprite.position.y + 1 + hero0ffset.y;
 
   shadowSprite.drawImage(ctx, heroPosX, heroPosY);
-  // shadow.drawImage(ctx, heroPos.x, heroPos.y);
   heroSprite.drawImage(ctx, heroPosX, heroPosY);
-  // heroSprite.drawImage(ctx, heroPos.x, heroPos.y);
 };
 
 const gameLoop = new GameLoop(update, draw);
