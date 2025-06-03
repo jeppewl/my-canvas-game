@@ -1,11 +1,12 @@
 import { GameLoop } from "./GameLoop.js";
-import { gridCells } from "./helpers/grid.js";
+import { gridCells, isSpaceFree } from "./helpers/grid.js";
 import { moveTowards } from "./helpers/moveTowards.js";
 import { DOWN, Input, LEFT, RIGHT, UP } from "./Input.js";
 import { resources } from "./Resource.js";
 import { Sprite } from "./Sprite.js";
 import "./style.css";
 import { Vector2 } from "./Vector2.js";
+import { walls } from "./levels/level1.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -73,8 +74,10 @@ const tryMove = () => {
     heroSprite.frame = 3;
   }
 
-  heroDestinationPosition.x = nextX;
-  heroDestinationPosition.y = nextY;
+  if (isSpaceFree(walls, nextX, nextY)) {
+    heroDestinationPosition.x = nextX;
+    heroDestinationPosition.y = nextY;
+  }
 };
 
 const draw = () => {
@@ -82,7 +85,7 @@ const draw = () => {
   groundSprite.drawImage(ctx, 0, 0);
 
   // Center the Hero in the cell
-  const hero0ffset = new Vector2(+8, -21);
+  const hero0ffset = new Vector2(-8, -21);
   const heroPosX = heroSprite.position.x + hero0ffset.x;
   const heroPosY = heroSprite.position.y + 1 + hero0ffset.y;
 
