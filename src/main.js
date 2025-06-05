@@ -22,6 +22,7 @@ import {
 import { GameObject } from "./GameObject.js";
 import { Hero } from "./objects/Hero/Hero.js";
 import { events } from "./Events.js";
+import { Camera } from "./Camera.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -32,7 +33,6 @@ const skySprite = new Sprite({
   resource: resources.images.sky,
   frameSize: new Vector2(320, 180),
 });
-mainScene.addChild(skySprite);
 
 const groundSprite = new Sprite({
   resource: resources.images.ground,
@@ -43,18 +43,22 @@ mainScene.addChild(groundSprite);
 const hero = new Hero(gridCells(6), gridCells(5));
 mainScene.addChild(hero);
 
-mainScene.input = new Input();
+const camera = new Camera();
+mainScene.addChild(camera);
 
-events.on("HERO_POSITION", mainScene, (heroPosition) => {
-  console.log("hero moved!", heroPosition);
-});
+mainScene.input = new Input();
 
 const update = (delta) => {
   mainScene.stepEntry(delta, mainScene);
 };
 
 const draw = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  skySprite.drawImage(ctx, 0, 0);
+  ctx.save();
+  ctx.translate(camera.position.x, camera.position.y);
   mainScene.draw(ctx, 0, 0);
+  ctx.restore();
 };
 
 const gameLoop = new GameLoop(update, draw);
