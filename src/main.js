@@ -21,6 +21,7 @@ import {
 } from "./objects/Hero/heroAnimation.js";
 import { GameObject } from "./GameObject.js";
 import { Hero } from "./objects/Hero/Hero.js";
+import { events } from "./Events.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -43,6 +44,10 @@ const hero = new Hero(gridCells(6), gridCells(5));
 mainScene.addChild(hero);
 
 mainScene.input = new Input();
+
+events.on("HERO_POSITION", mainScene, (heroPosition) => {
+  console.log("hero moved!", heroPosition);
+});
 
 const update = (delta) => {
   mainScene.stepEntry(delta, mainScene);

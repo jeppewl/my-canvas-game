@@ -1,4 +1,5 @@
 import { Animations } from "../../Animations.js";
+import { events } from "../../Events.js";
 import { FrameIndexPattern } from "../../FrameIndexPattern.js";
 import { GameObject } from "../../GameObject.js";
 import { gridCells, isSpaceFree } from "../../helpers/grid.js";
@@ -63,6 +64,17 @@ export class Hero extends GameObject {
     if (hasArrived) {
       this.tryMove(root);
     }
+
+    this.tryEmitPosition();
+  }
+
+  tryEmitPosition() {
+    if (this.lastX === this.position.x && this.lastY === this.position.y) {
+      return;
+    }
+    this.lastX = this.position.x;
+    this.lastY = this.position.y;
+    events.emit("HERO_POSITION", this.position);
   }
 
   tryMove(root) {
