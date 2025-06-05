@@ -7,6 +7,18 @@ import { Sprite } from "./Sprite.js";
 import "./style.css";
 import { Vector2 } from "./Vector2.js";
 import { walls } from "./levels/level1.js";
+import { Animations } from "./Animations.js";
+import { FrameIndexPattern } from "./FrameIndexPattern.js";
+import {
+  STAND_DOWN,
+  STAND_LEFT,
+  STAND_RIGHT,
+  STAND_UP,
+  WALK_DOWN,
+  WALK_LEFT,
+  WALK_RIGHT,
+  WALK_UP,
+} from "./objects/Hero/heroAnimation.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -28,9 +40,20 @@ const heroSprite = new Sprite({
   vFrames: 8,
   frame: 1,
   position: new Vector2(gridCells(6), gridCells(5)),
+  animations: new Animations({
+    walkDown: new FrameIndexPattern(WALK_DOWN),
+    walkUp: new FrameIndexPattern(WALK_UP),
+    walkLeft: new FrameIndexPattern(WALK_LEFT),
+    walkRight: new FrameIndexPattern(WALK_RIGHT),
+    standDown: new FrameIndexPattern(STAND_DOWN),
+    standUp: new FrameIndexPattern(STAND_UP),
+    standLeft: new FrameIndexPattern(STAND_LEFT),
+    standRight: new FrameIndexPattern(STAND_RIGHT),
+  }),
 });
 
 const heroDestinationPosition = heroSprite.position.duplicate();
+let heroFacing = DOWN;
 
 const shadowSprite = new Sprite({
   resource: resources.images.shadow,
@@ -39,17 +62,30 @@ const shadowSprite = new Sprite({
 
 const input = new Input();
 
-const update = () => {
+const update = (delta) => {
   const distance = moveTowards(heroSprite, heroDestinationPosition, 1);
   const hasArrived = distance <= 1;
   if (hasArrived) {
     tryMove();
   }
-  return;
+
+  heroSprite.step(delta);
 };
 
 const tryMove = () => {
   if (!input.direction) {
+    if (heroFacing === LEFT) {
+      heroSprite.animations.play("standLeft");
+    }
+    if (heroFacing === RIGHT) {
+      heroSprite.animations.play("standRight");
+    }
+    if (heroFacing === UP) {
+      heroSprite.animations.play("standUp");
+    }
+    if (heroFacing === DOWN) {
+      heroSprite.animations.play("standDown");
+    }
     return;
   }
 
@@ -59,20 +95,21 @@ const tryMove = () => {
 
   if (input.direction === DOWN) {
     nextY += gridSize;
-    heroSprite.frame = 0;
+    heroSprite.animations.play("walkDown");
   }
   if (input.direction === UP) {
     nextY -= gridSize;
-    heroSprite.frame = 6;
+    heroSprite.animations.play("walkUp");
   }
   if (input.direction === LEFT) {
     nextX -= gridSize;
-    heroSprite.frame = 9;
+    heroSprite.animations.play("walkLeft");
   }
   if (input.direction === RIGHT) {
     nextX += gridSize;
-    heroSprite.frame = 3;
+    heroSprite.animations.play("walkRight");
   }
+  heroFacing = input.direction ?? heroFacing;
 
   if (isSpaceFree(walls, nextX, nextY)) {
     heroDestinationPosition.x = nextX;
