@@ -6,12 +6,18 @@ export class GameObject {
     this.position = position ?? new Vector2(0, 0);
     this.children = [];
     this.parent = null;
+    this.hasReadyBeenCalled = false;
   }
 
   // First entry point of the loop
   stepEntry(delta, root) {
     // Call updates on all children first
     this.children.forEach((child) => child.stepEntry(delta, root));
+
+    if (!this.hasReadyBeenCalled) {
+      this.hasReadyBeenCalled = true;
+      this.ready();
+    }
 
     // Call any implemented Step code
     this.step(delta, root);
@@ -21,6 +27,8 @@ export class GameObject {
   step(_delta) {
     // ...
   }
+
+  ready() {}
 
   /* draw entry */
   draw(ctx, x, y) {
@@ -52,7 +60,7 @@ export class GameObject {
   }
 
   removeChild(gameObject) {
-    console.log("removeChild ", gameObject);
+    // console.log("removeChild ", gameObject);
     events.unsubscribe(gameObject);
     this.children = this.children.filter((g) => {
       return gameObject !== g;
