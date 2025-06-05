@@ -1,28 +1,14 @@
 import { GameLoop } from "./GameLoop.js";
-import { gridCells, isSpaceFree } from "./helpers/grid.js";
-import { moveTowards } from "./helpers/moveTowards.js";
-import { DOWN, Input, LEFT, RIGHT, UP } from "./Input.js";
+import { gridCells } from "./helpers/grid.js";
+import { Input } from "./Input.js";
 import { resources } from "./Resource.js";
 import { Sprite } from "./Sprite.js";
 import "./style.css";
 import { Vector2 } from "./Vector2.js";
-import { walls } from "./levels/level1.js";
-import { Animations } from "./Animations.js";
-import { FrameIndexPattern } from "./FrameIndexPattern.js";
-import {
-  STAND_DOWN,
-  STAND_LEFT,
-  STAND_RIGHT,
-  STAND_UP,
-  WALK_DOWN,
-  WALK_LEFT,
-  WALK_RIGHT,
-  WALK_UP,
-} from "./objects/Hero/heroAnimation.js";
 import { GameObject } from "./GameObject.js";
 import { Hero } from "./objects/Hero/Hero.js";
-import { events } from "./Events.js";
 import { Camera } from "./Camera.js";
+import { Rod } from "./objects/Hero/Rod/Rod.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
@@ -45,6 +31,9 @@ mainScene.addChild(hero);
 
 const camera = new Camera();
 mainScene.addChild(camera);
+
+const rod = new Rod(gridCells(7), gridCells(6));
+mainScene.addChild(rod);
 
 mainScene.input = new Input();
 

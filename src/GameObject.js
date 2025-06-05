@@ -1,9 +1,11 @@
+import { events } from "./Events.js";
 import { Vector2 } from "./Vector2.js";
 
 export class GameObject {
   constructor({ position }) {
     this.position = position ?? new Vector2(0, 0);
     this.children = [];
+    this.parent = null;
   }
 
   // First entry point of the loop
@@ -36,6 +38,13 @@ export class GameObject {
     //...
   }
 
+  destroy() {
+    this.children.forEach((child) => {
+      child.destroy();
+    });
+    this.parent.removeChild(this);
+  }
+
   /* Other Game Objects are nestable inside this one */
   addChild(gameObject) {
     gameObject.parent = this;
@@ -43,6 +52,7 @@ export class GameObject {
   }
 
   removeChild(gameObject) {
+    console.log("removeChild ", gameObject);
     events.unsubscribe(gameObject);
     this.children = this.children.filter((g) => {
       return gameObject !== g;

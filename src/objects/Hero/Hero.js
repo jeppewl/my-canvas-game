@@ -10,6 +10,7 @@ import { resources } from "../../Resource.js";
 import { Sprite } from "../../Sprite.js";
 import { Vector2 } from "../../Vector2.js";
 import {
+  PICK_UP_DOWN,
   STAND_DOWN,
   STAND_LEFT,
   STAND_RIGHT,
@@ -50,15 +51,27 @@ export class Hero extends GameObject {
         standUp: new FrameIndexPattern(STAND_UP),
         standLeft: new FrameIndexPattern(STAND_LEFT),
         standRight: new FrameIndexPattern(STAND_RIGHT),
+        pickUpDown: new FrameIndexPattern(PICK_UP_DOWN),
       }),
     });
     this.addChild(this.body);
 
     this.facingDirection = DOWN;
     this.destinationPosition = this.position.duplicate();
+    this.itemPickupTime = 0;
+    this.itemPickupShell = null;
+
+    events.on("HERO_PICKS_UP_ITEM", this, (data) => {
+      this.onPickUpItem(data);
+    });
   }
 
   step(delta, root) {
+    if (this.itemPickupTime > 0) {
+      this.workOnItemPickup(delta);
+      return;
+    }
+
     const distance = moveTowards(this, this.destinationPosition, 1);
     const hasArrived = distance <= 1;
     if (hasArrived) {
@@ -121,6 +134,30 @@ export class Hero extends GameObject {
     if (isSpaceFree(walls, nextX, nextY)) {
       this.destinationPosition.x = nextX;
       this.destinationPosition.y = nextY;
+    }
+  }
+
+  onPickUpItem({ image, position }) {
+    this.destinationPosition = position.duplicate();
+    this.itemPickupTime = 500;
+
+    this.itemPickupShell = new GameObject({});
+    this.itemPickupShell.addChild(
+      new Sprite({
+        resource: image,
+        position: new Vector2(0, -18),
+      })
+    );
+    this.addChild(this.itemPickupShell);
+  }
+
+  workOnItemPickup(delta) {
+    this.itemPickupTime -= delta;
+    this.body.animations.play("pickUpDown");
+
+    // Remove the item being held overhead
+    if (this.itemPickupTime <= 0) {
+      this.itemPickupShell.destroy();
     }
   }
 }

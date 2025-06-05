@@ -2,6 +2,7 @@ import sky from "./assets/sprites/sky.png";
 import ground from "./assets/sprites/ground.png";
 import hero from "./assets/sprites/hero-sheet.png";
 import shadow from "./assets/sprites/shadow.png";
+import rod from "./assets/sprites/rod.png";
 
 class Resources {
   constructor() {
@@ -11,6 +12,7 @@ class Resources {
       ground,
       hero,
       shadow,
+      rod,
     };
 
     this.images = {};
