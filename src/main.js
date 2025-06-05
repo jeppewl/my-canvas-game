@@ -19,115 +19,37 @@ import {
   WALK_RIGHT,
   WALK_UP,
 } from "./objects/Hero/heroAnimation.js";
+import { GameObject } from "./GameObject.js";
+import { Hero } from "./objects/Hero/Hero.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
+
+const mainScene = new GameObject({ position: new Vector2(0, 0) });
 
 const skySprite = new Sprite({
   resource: resources.images.sky,
   frameSize: new Vector2(320, 180),
 });
+mainScene.addChild(skySprite);
 
 const groundSprite = new Sprite({
   resource: resources.images.ground,
   frameSize: new Vector2(320, 180),
 });
+mainScene.addChild(groundSprite);
 
-const heroSprite = new Sprite({
-  resource: resources.images.hero,
-  frameSize: new Vector2(32, 32),
-  hFrames: 3,
-  vFrames: 8,
-  frame: 1,
-  position: new Vector2(gridCells(6), gridCells(5)),
-  animations: new Animations({
-    walkDown: new FrameIndexPattern(WALK_DOWN),
-    walkUp: new FrameIndexPattern(WALK_UP),
-    walkLeft: new FrameIndexPattern(WALK_LEFT),
-    walkRight: new FrameIndexPattern(WALK_RIGHT),
-    standDown: new FrameIndexPattern(STAND_DOWN),
-    standUp: new FrameIndexPattern(STAND_UP),
-    standLeft: new FrameIndexPattern(STAND_LEFT),
-    standRight: new FrameIndexPattern(STAND_RIGHT),
-  }),
-});
+const hero = new Hero(gridCells(6), gridCells(5));
+mainScene.addChild(hero);
 
-const heroDestinationPosition = heroSprite.position.duplicate();
-let heroFacing = DOWN;
-
-const shadowSprite = new Sprite({
-  resource: resources.images.shadow,
-  frameSize: new Vector2(32, 32),
-});
-
-const input = new Input();
+mainScene.input = new Input();
 
 const update = (delta) => {
-  const distance = moveTowards(heroSprite, heroDestinationPosition, 1);
-  const hasArrived = distance <= 1;
-  if (hasArrived) {
-    tryMove();
-  }
-
-  heroSprite.step(delta);
-};
-
-const tryMove = () => {
-  if (!input.direction) {
-    if (heroFacing === LEFT) {
-      heroSprite.animations.play("standLeft");
-    }
-    if (heroFacing === RIGHT) {
-      heroSprite.animations.play("standRight");
-    }
-    if (heroFacing === UP) {
-      heroSprite.animations.play("standUp");
-    }
-    if (heroFacing === DOWN) {
-      heroSprite.animations.play("standDown");
-    }
-    return;
-  }
-
-  let nextX = heroDestinationPosition.x;
-  let nextY = heroDestinationPosition.y;
-  const gridSize = 16;
-
-  if (input.direction === DOWN) {
-    nextY += gridSize;
-    heroSprite.animations.play("walkDown");
-  }
-  if (input.direction === UP) {
-    nextY -= gridSize;
-    heroSprite.animations.play("walkUp");
-  }
-  if (input.direction === LEFT) {
-    nextX -= gridSize;
-    heroSprite.animations.play("walkLeft");
-  }
-  if (input.direction === RIGHT) {
-    nextX += gridSize;
-    heroSprite.animations.play("walkRight");
-  }
-  heroFacing = input.direction ?? heroFacing;
-
-  if (isSpaceFree(walls, nextX, nextY)) {
-    heroDestinationPosition.x = nextX;
-    heroDestinationPosition.y = nextY;
-  }
+  mainScene.stepEntry(delta, mainScene);
 };
 
 const draw = () => {
-  skySprite.drawImage(ctx, 0, 0);
-  groundSprite.drawImage(ctx, 0, 0);
-
-  // Center the Hero in the cell
-  const hero0ffset = new Vector2(-8, -21);
-  const heroPosX = heroSprite.position.x + hero0ffset.x;
-  const heroPosY = heroSprite.position.y + 1 + hero0ffset.y;
-
-  shadowSprite.drawImage(ctx, heroPosX, heroPosY);
-  heroSprite.drawImage(ctx, heroPosX, heroPosY);
+  mainScene.draw(ctx, 0, 0);
 };
 
 const gameLoop = new GameLoop(update, draw);
