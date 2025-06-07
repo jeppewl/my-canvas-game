@@ -8,8 +8,8 @@ import { Vector2 } from "./Vector2.js";
 import { GameObject } from "./GameObject.js";
 import { Hero } from "./objects/Hero/Hero.js";
 import { Camera } from "./Camera.js";
-import { Rod } from "./objects/Hero/Rod/Rod.js";
-import { Inventory } from "./objects/Hero/Inventory/Inventory.js";
+import { Rod } from "./objects/Rod/Rod.js";
+import { Inventory } from "./objects/Inventory/Inventory.js";
 
 const canvas = document.querySelector("#game-canvas");
 const ctx = canvas.getContext("2d");
